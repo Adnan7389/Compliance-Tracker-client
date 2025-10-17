@@ -9,6 +9,7 @@ const Input = ({
     onChange,
     required = false,
     disabled = false,
+    error, // NEW - error message
     helpText,
     ...props
 }) => {
@@ -28,10 +29,15 @@ const Input = ({
                 onChange={onChange}
                 required={required}
                 disabled={disabled}
-                className="input disabled:bg-gray-100 disabled:cursor-not-allowed"
+                className={`input disabled:bg-gray-100 disabled:cursor-not-allowed ${error ? 'border-danger-500 focus:border-danger-500 focus:ring-danger-500' : ''
+                    }`} // NEW - error styling
                 {...props}
             />
-            {helpText && (
+            {/* NEW - Error message display */}
+            {error && (
+                <p className="mt-1 text-sm text-danger-600">{error}</p>
+            )}
+            {helpText && !error && ( // Don't show help text if there's an error
                 <p className="mt-1 text-sm text-gray-500">{helpText}</p>
             )}
         </div>
