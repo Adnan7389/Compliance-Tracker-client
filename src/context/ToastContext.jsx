@@ -1,19 +1,14 @@
-import React, { createContext, useContext, useState } from 'react';
-
-const ToastContext = createContext();
-
-export const useToast = () => {
-    const context = useContext(ToastContext);
-    if (!context) {
-        throw new Error('useToast must be used within a ToastProvider');
-    }
-    return context;
-};
+import React, { useState, useCallback, useMemo } from 'react';
+import { ToastContext } from './toast';
 
 export const ToastProvider = ({ children }) => {
     const [toasts, setToasts] = useState([]);
 
-    const addToast = (message, type = 'info', duration = 5000) => {
+    const removeToast = useCallback((id) => {
+        setToasts(prev => prev.filter(toast => toast.id !== id));
+    }, []);
+
+    const addToast = useCallback((message, type = 'info', duration = 5000) => {
         const id = Date.now() + Math.random();
         const toast = { id, message, type, duration };
 
@@ -27,25 +22,21 @@ export const ToastProvider = ({ children }) => {
         }
 
         return id;
-    };
+    }, [removeToast]);
 
-    const removeToast = (id) => {
-        setToasts(prev => prev.filter(toast => toast.id !== id));
-    };
+    const showSuccess = useCallback((message, duration) =>
+        addToast(message, 'success', duration), [addToast]);
 
-    const showSuccess = (message, duration) =>
-        addToast(message, 'success', duration);
+    const showError = useCallback((message, duration) =>
+        addToast(message, 'error', duration), [addToast]);
 
-    const showError = (message, duration) =>
-        addToast(message, 'error', duration);
+    const showWarning = useCallback((message, duration) =>
+        addToast(message, 'warning', duration), [addToast]);
 
-    const showWarning = (message, duration) =>
-        addToast(message, 'warning', duration);
+    const showInfo = useCallback((message, duration) =>
+        addToast(message, 'info', duration), [addToast]);
 
-    const showInfo = (message, duration) =>
-        addToast(message, 'info', duration);
-
-    const value = {
+    const value = useMemo(() => ({
         toasts,
         addToast,
         removeToast,
@@ -53,7 +44,7 @@ export const ToastProvider = ({ children }) => {
         showError,
         showWarning,
         showInfo,
-    };
+    }), [toasts, addToast, removeToast, showSuccess, showError, showWarning, showInfo]);
 
     return (
         <ToastContext.Provider value={value}>
