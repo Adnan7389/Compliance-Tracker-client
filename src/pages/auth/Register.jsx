@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import { useApiError } from '../../hooks/useApiError'; // NEW
-import { useToast } from '../../context/ToastContext'; // NEW
+import { useToast } from '../../hooks/useToast'; // NEW
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Loader from '../../components/ui/Loader';

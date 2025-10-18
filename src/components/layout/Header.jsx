@@ -1,8 +1,8 @@
 import React from 'react';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 
 const Header = ({ onMenuClick }) => {
-    const { user, isOwner, isStaff } = useAuth();
+    const { user, isOwner } = useAuth();
 
     const getPageTitle = () => {
         const path = window.location.pathname;
