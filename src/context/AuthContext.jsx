@@ -23,9 +23,9 @@ export const AuthProvider = ({ children }) => {
       id: userData.id,
       name: userData.name,
       role: userData.role,
-      businessId: userData.businessId
+      businessId: userData.businessId,
+      email: userData.email
       // ✅ Only non-sensitive data
-      // ❌ No email, tokens, or personal info
     };
   }, []);
 
