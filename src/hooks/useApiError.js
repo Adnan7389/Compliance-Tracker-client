@@ -6,6 +6,9 @@ import {
     isPermissionError
 } from '../services/api';
 
+// Add this new utility function
+export const isConflictError = (error) => error.type === 'CONFLICT_ERROR';
+
 export const useApiError = () => {
     const [errors, setErrors] = useState({});
     const [globalError, setGlobalError] = useState('');
@@ -39,6 +42,15 @@ export const useApiError = () => {
                         message: fieldErrors[fieldName]
                     });
                 });
+            }
+
+        } else if (isConflictError(error)) {
+            // NEW: Handle conflict errors (like duplicate email)
+            // Check if it's an email conflict and show field-specific error
+            if (error.message.toLowerCase().includes('email')) {
+                setErrors({ email: error.message });
+            } else {
+                setGlobalError(error.message);
             }
 
         } else if (isNetworkError(error)) {

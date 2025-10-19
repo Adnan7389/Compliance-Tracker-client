@@ -85,6 +85,7 @@ api.interceptors.response.use(
           // Conflict - duplicate resource
           error.message = data.message || 'Resource already exists';
           error.type = 'CONFLICT_ERROR';
+          error.details = data.details;
           break;
 
         case 422:
