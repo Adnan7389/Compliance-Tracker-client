@@ -29,6 +29,9 @@ export const useApiError = () => {
                     if (detail.field && detail.message) {
                         fieldErrors[detail.field] = detail.message;
                     }
+                     else if (detail.message && detail.message.toLowerCase().includes('password')) {
+                        fieldErrors['password'] = detail.message;
+                    }
                 });
             }
 
