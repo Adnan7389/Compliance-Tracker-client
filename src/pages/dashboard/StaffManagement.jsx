@@ -8,11 +8,13 @@ import Input from '../../components/ui/Input';
 import Loader from '../../components/ui/Loader';
 import Modal from '../../components/ui/Modal';
 
+import { validateEmail, validatePassword, validateRequired } from '../../utils/validation';
+
 const StaffManagement = () => {
   const [staff, setStaff] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isCreating, setIsCreating] = useState(false); // NEW: Separate loading state for creation
+  const [isCreating, setIsCreating] = useState(false);
   const { errors, globalError, handleError, clearErrors } = useApiError();
   const { showSuccess, showError } = useToast();
 
@@ -42,8 +44,25 @@ const StaffManagement = () => {
 
   const handleCreateStaff = async (e) => {
     e.preventDefault();
-    setIsCreating(true); // NEW: Set creating state
     clearErrors();
+
+    const validationErrors = {};
+    const nameError = validateRequired(formData.name, 'Name');
+    if (nameError) validationErrors.name = nameError;
+
+    const emailError = validateEmail(formData.email);
+    if (emailError) validationErrors.email = emailError;
+
+    const passwordError = validatePassword(formData.password);
+    if (passwordError) validationErrors.password = passwordError;
+
+    if (Object.keys(validationErrors).length > 0) {
+      const errorDetails = Object.entries(validationErrors).map(([field, message]) => ({ field, message }));
+      handleError({ type: 'VALIDATION_ERROR', details: errorDetails });
+      return;
+    }
+
+    setIsCreating(true);
 
     try {
       const response = await staffAPI.create(formData);
