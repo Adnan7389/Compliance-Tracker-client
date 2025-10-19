@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { useApiError } from '../../hooks/useApiError'; // NEW
-import { useToast } from '../../hooks/useToast'; // NEW
+import { useApiError } from '../../hooks/useApiError';
+import { useToast } from '../../hooks/useToast';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Loader from '../../components/ui/Loader';
+
+import { validateEmail, validatePassword, validateRequired } from '../../utils/validation';
 
 const Register = () => {
     const [formData, setFormData] = useState({
@@ -17,8 +19,8 @@ const Register = () => {
     const [isLoading, setIsLoading] = useState(false);
 
     const { register, isAuthenticated } = useAuth();
-    const { errors, globalError, handleError, clearErrors, clearFieldError } = useApiError(); // NEW
-    const { showSuccess } = useToast(); // NEW
+    const { errors, globalError, handleError, clearErrors, clearFieldError } = useApiError();
+    const { showSuccess } = useToast();
     const navigate = useNavigate();
 
     // Redirect if already authenticated
@@ -47,8 +49,28 @@ const Register = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        clearErrors();
+
+        const validationErrors = {};
+        const nameError = validateRequired(formData.name, 'Name');
+        if (nameError) validationErrors.name = nameError;
+
+        const emailError = validateEmail(formData.email);
+        if (emailError) validationErrors.email = emailError;
+
+        const passwordError = validatePassword(formData.password);
+        if (passwordError) validationErrors.password = passwordError;
+
+        const businessNameError = validateRequired(formData.businessName, 'Business Name');
+        if (businessNameError) validationErrors.businessName = businessNameError;
+
+        if (Object.keys(validationErrors).length > 0) {
+            const errorDetails = Object.entries(validationErrors).map(([field, message]) => ({ field, message }));
+            handleError({ type: 'VALIDATION_ERROR', details: errorDetails });
+            return;
+        }
+
         setIsLoading(true);
-        clearErrors(); // Clear previous errors
 
         try {
             await register(formData);
