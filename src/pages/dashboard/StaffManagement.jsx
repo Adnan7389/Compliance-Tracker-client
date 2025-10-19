@@ -71,18 +71,12 @@ const StaffManagement = () => {
       setIsCreateModalOpen(false);
       setFormData({ name: '', email: '', password: '' });
     } catch (error) {
-      // Use the new error handling system - this should now catch 409 errors
-      const handledError = handleError(error);
-
-      // If it's a conflict error about email, it should now be in errors.email
-      // If it's another type of error, it might be in globalError
-      console.log('Handled error details:', {
-        errors,
-        globalError,
-        originalError: handledError
-      });
+      handleError(error);
+      if (globalError) {
+        showError(globalError);
+      }
     } finally {
-      setIsCreating(false); // NEW: Reset creating state
+      setIsCreating(false);
     }
   };
 
