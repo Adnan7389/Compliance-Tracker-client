@@ -9,35 +9,57 @@ const Input = ({
     onChange,
     required = false,
     disabled = false,
-    error, // NEW - error message
+    error,
     helpText,
+    as = 'input', // New prop to specify the element type
+    children, // To capture <option> elements for select
     ...props
 }) => {
+    const commonProps = {
+        id: id || name,
+        name,
+        value,
+        onChange,
+        required,
+        disabled,
+        className: `input disabled:bg-gray-100 disabled:cursor-not-allowed ${error ? 'border-danger-500 focus:border-danger-500 focus:ring-danger-500' : ''
+            }`,
+        ...props,
+    };
+
+    const renderElement = () => {
+        switch (as) {
+            case 'select':
+                return (
+                    <select {...commonProps}>
+                        {children}
+                    </select>
+                );
+            case 'textarea':
+                return (
+                    <textarea {...commonProps} />
+                );
+            case 'input':
+            default:
+                return (
+                    <input type={type} {...commonProps} />
+                );
+        }
+    };
+
     return (
         <div>
             {label && (
-                <label htmlFor={id} className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor={id || name} className="block text-sm font-medium text-gray-700 mb-1">
                     {label}
                     {required && <span className="text-danger-500 ml-1">*</span>}
                 </label>
             )}
-            <input
-                id={id}
-                name={name}
-                type={type}
-                value={value}
-                onChange={onChange}
-                required={required}
-                disabled={disabled}
-                className={`input disabled:bg-gray-100 disabled:cursor-not-allowed ${error ? 'border-danger-500 focus:border-danger-500 focus:ring-danger-500' : ''
-                    }`} // NEW - error styling
-                {...props}
-            />
-            {/* NEW - Error message display */}
+            {renderElement()}
             {error && (
                 <p className="mt-1 text-sm text-danger-600">{error}</p>
             )}
-            {helpText && !error && ( // Don't show help text if there's an error
+            {helpText && !error && (
                 <p className="mt-1 text-sm text-gray-500">{helpText}</p>
             )}
         </div>
