@@ -1,7 +1,7 @@
 import React from 'react';
 import TaskTableRow from './TaskTableRow';
 
-const TaskTable = ({ tasks, onViewTask, onEditTask, onDeleteTask }) => {
+const TaskTable = ({ tasks, onViewTask, onEditTask, onDeleteTask, isStaff }) => {
   return (
     <div className="bg-white shadow rounded-lg">
       <div className="px-6 py-4 border-b border-gray-200">
@@ -22,7 +22,7 @@ const TaskTable = ({ tasks, onViewTask, onEditTask, onDeleteTask }) => {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {tasks.map((task) => (
-              <TaskTableRow key={task.id} task={task} onViewTask={onViewTask} onEditTask={onEditTask} onDeleteTask={onDeleteTask} />
+              <TaskTableRow key={task.id} task={task} onViewTask={onViewTask} onEditTask={onEditTask} onDeleteTask={onDeleteTask} isStaff={isStaff} />
             ))}
           </tbody>
         </table>
