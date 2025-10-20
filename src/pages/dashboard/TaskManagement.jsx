@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react'; // Temporary comment to force re-evaluation
-import { tasksAPI, staffAPI } from '../../services/api';
+import React, { useState, useEffect, useCallback } from 'react'; // Temporary comment to force re-evaluation
+import { useAuth } from '../../hooks/useAuth';
+import { tasksAPI, staffAPI, isPermissionError } from '../../services/api';
 import Loader from '../../components/ui/Loader';
 import { useApiError } from '../../hooks/useApiError';
 import { useToast } from '../../hooks/useToast';
@@ -9,6 +10,7 @@ import Input from '../../components/ui/Input';
 import CreateTaskModal from '../../components/tasks/CreateTaskModal';
 import ViewTaskModal from '../../components/tasks/ViewTaskModal';
 import EditTaskModal from '../../components/tasks/EditTaskModal';
+import StaffEditTaskModal from '../../components/tasks/StaffEditTaskModal';
 import DeleteConfirmationModal from '../../components/ui/DeleteConfirmationModal';
 
 const TaskManagement = () => {
@@ -29,32 +31,43 @@ const TaskManagement = () => {
   });
   const { handleError, globalError } = useApiError();
   const { showSuccess, showError } = useToast();
+  const { user, isStaff } = useAuth();
 
   useEffect(() => {
-    loadInitialData();
-  }, []);
+    const loadInitialData = async () => {
+      if (isStaff) {
+        setIsLoading(false);
+        return;
+      }
+      try {
+        setIsLoading(true);
+        const staffResponse = await staffAPI.getAll();
+        setStaff(staffResponse.data.staff);
+      } catch (error) {
+        if (!isPermissionError(error)) {
+          handleError(error);
+        } else {
+          console.warn('Permission denied to fetch staff list.');
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  const loadInitialData = async () => {
-    try {
-      setIsLoading(true);
-      const [staffResponse] = await Promise.all([
-        staffAPI.getAll(),
-      ]);
-      setStaff(staffResponse.data.staff);
-    } catch (error) {
-      handleError(error);
-    } finally {
-      setIsLoading(false);
+    if (user) {
+      loadInitialData();
     }
-  };
+  }, [handleError, isStaff, user]);
 
-  const loadTasks = async () => {
+  const loadTasks = useCallback(async () => {
     try {
       const queryParams = { overdue: filters.overdue };
       if (filters.status) {
         queryParams.status = filters.status;
       }
-      if (filters.assigned_to) {
+      if (isStaff) {
+        queryParams.assigned_to = user.id;
+      } else if (filters.assigned_to) {
         queryParams.assigned_to = filters.assigned_to;
       }
       const response = await tasksAPI.getAll(queryParams);
@@ -62,11 +75,11 @@ const TaskManagement = () => {
     } catch (error) {
       handleError(error);
     }
-  };
+  }, [filters, handleError, isStaff, user]);
 
   useEffect(() => {
     loadTasks();
-  }, [filters]);
+  }, [loadTasks]);
 
   const handleFilterChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -122,14 +135,6 @@ const TaskManagement = () => {
     return <Loader />;
   }
 
-  if (globalError && !isLoading) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-danger-500">{globalError}</p>
-      </div>
-    );
-  }
-
   return (
     <div className="max-w-7xl mx-auto">
       <div className="flex justify-between items-center mb-6">
@@ -137,10 +142,17 @@ const TaskManagement = () => {
           <h1 className="text-2xl font-bold text-gray-900">Task Management</h1>
           <p className="text-gray-600 mt-1">Manage all tasks and their statuses.</p>
         </div>
-        <Button variant="primary" onClick={() => setIsCreateModalOpen(true)}>
-          Create Task
-        </Button>
+        {!isStaff && (
+          <Button variant="primary" onClick={() => setIsCreateModalOpen(true)}>
+            Create Task
+          </Button>
+        )}
       </div>
+      {globalError && (
+        <div className="bg-danger-50 border border-danger-200 text-danger-700 px-4 py-3 rounded mb-6">
+          {globalError}
+        </div>
+      )}
       <div className="bg-white shadow rounded-lg p-4 mb-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Input
@@ -156,20 +168,23 @@ const TaskManagement = () => {
             <option value="completed">Completed</option>
           </Input>
 
-          <Input
-            label="Assignee"
-            name="assigned_to"
-            as="select"
-            value={filters.assigned_to}
-            onChange={handleFilterChange}
-          >
-            <option value="">All Assignees</option>
-            {staff.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name}
-              </option>
-            ))}
-          </Input>
+          {!isStaff && (
+            <Input
+              label="Assignee"
+              name="assigned_to"
+              as="select"
+              value={filters.assigned_to}
+              onChange={handleFilterChange}
+              disabled={staff.length === 0}
+            >
+              <option value="">All Assignees</option>
+              {staff.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
+              ))}
+            </Input>
+          )}
 
           <div className="flex items-end">
             <label className="flex items-center space-x-2">
@@ -185,7 +200,7 @@ const TaskManagement = () => {
           </div>
         </div>
       </div>
-      <TaskTable tasks={tasks} onViewTask={handleViewTask} onEditTask={handleEditTask} onDeleteTask={handleDeleteTask} />
+      <TaskTable tasks={tasks} onViewTask={handleViewTask} onEditTask={handleEditTask} onDeleteTask={handleDeleteTask} isStaff={isStaff} />
       <CreateTaskModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
@@ -196,12 +211,21 @@ const TaskManagement = () => {
         onClose={() => setIsViewModalOpen(false)}
         task={selectedTask}
       />
-      <EditTaskModal
-        isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
-        onTaskUpdated={handleTaskUpdated}
-        task={selectedTask}
-      />
+      {isStaff ? (
+        <StaffEditTaskModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          onTaskUpdated={handleTaskUpdated}
+          task={selectedTask}
+        />
+      ) : (
+        <EditTaskModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          onTaskUpdated={handleTaskUpdated}
+          task={selectedTask}
+        />
+      )}
       <DeleteConfirmationModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
