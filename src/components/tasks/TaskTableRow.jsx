@@ -2,7 +2,7 @@ import React from 'react';
 import { FaEye, FaEdit, FaTrash } from 'react-icons/fa';
 import Button from '../ui/Button';
 
-const TaskTableRow = ({ task, onViewTask, onEditTask, onDeleteTask }) => {
+const TaskTableRow = ({ task, onViewTask, onEditTask, onDeleteTask, isStaff }) => {
   const getStatusChip = (status) => {
     switch (status) {
       case 'pending':
@@ -48,9 +48,11 @@ const TaskTableRow = ({ task, onViewTask, onEditTask, onDeleteTask }) => {
           <Button variant="icon" size="sm" onClick={() => onEditTask(task)}>
             <FaEdit />
           </Button>
-          <Button variant="icon" size="sm" className="text-danger-500" onClick={() => onDeleteTask(task)}>
-            <FaTrash />
-          </Button>
+          {!isStaff && (
+            <Button variant="icon" size="sm" className="text-danger-500" onClick={() => onDeleteTask(task)}>
+              <FaTrash />
+            </Button>
+          )}
         </div>
       </td>
     </tr>
