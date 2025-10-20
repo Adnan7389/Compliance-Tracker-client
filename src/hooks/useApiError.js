@@ -28,9 +28,10 @@ export const useApiError = () => {
                 error.details.forEach(detail => {
                     if (detail.field && detail.message) {
                         fieldErrors[detail.field] = detail.message;
-                    }
-                     else if (detail.message && detail.message.toLowerCase().includes('password')) {
+                    } else if (detail.message && detail.message.toLowerCase().includes('password')) {
                         fieldErrors['password'] = detail.message;
+                    } else if (detail.message && detail.message.toLowerCase().includes('staff')) {
+                        fieldErrors['assigned_to'] = detail.message;
                     }
                 });
             }
