@@ -38,3 +38,33 @@ export const validateRequired = (value, fieldName) => {
   }
   return null;
 };
+
+export const validateTask = (task) => {
+  const errors = {};
+
+  if (!task.title.trim()) {
+    errors.title = 'Title is required';
+  }
+
+  if (!task.category) {
+    errors.category = 'Category is required';
+  }
+
+  if (!task.due_date) {
+    errors.due_date = 'Due date is required';
+  } else {
+    const today = new Date();
+    const dueDate = new Date(task.due_date);
+    today.setHours(0, 0, 0, 0);
+    dueDate.setHours(0, 0, 0, 0);
+    if (dueDate < today) {
+      errors.due_date = 'Due date cannot be in the past';
+    }
+  }
+
+  if (!task.assigned_to) {
+    errors.assigned_to = 'Please assign the task to a staff member';
+  }
+
+  return errors;
+};
