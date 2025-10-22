@@ -1,10 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaChartBar, FaFilter } from 'react-icons/fa';
 import {
     BarChart,
     Bar,
     Cell,
-    ResponsiveContainer,
     XAxis,
     YAxis,
     CartesianGrid,
@@ -13,7 +12,25 @@ import {
 } from 'recharts';
 
 const TaskDistributionChart = ({ data, className = '' }) => {
-    // Predefined color palette for consistent theming
+    const [isClient, setIsClient] = useState(false);
+    const [chartDimensions, setChartDimensions] = useState({ width: 600, height: 320 });
+
+    useEffect(() => {
+        setIsClient(true);
+        // Set initial dimensions based on container
+        updateChartDimensions();
+        window.addEventListener('resize', updateChartDimensions);
+
+        return () => window.removeEventListener('resize', updateChartDimensions);
+    }, []);
+
+    const updateChartDimensions = () => {
+        // Use fixed dimensions that work well for the layout
+        const width = Math.min(800, window.innerWidth - 100);
+        const height = 320;
+        setChartDimensions({ width, height });
+    };
+
     const colorPalette = [
         'rgb(59, 130, 246)',  // blue-500
         'rgb(16, 185, 129)',  // emerald-500
@@ -41,9 +58,35 @@ const TaskDistributionChart = ({ data, className = '' }) => {
         return null;
     };
 
+    // Show loading state until client-side rendering is confirmed
+    if (!isClient) {
+        return (
+            <div className={`bg-white rounded-2xl shadow-soft border border-gray-100 p-6 ${className}`}>
+                <div className="flex items-center justify-between mb-8">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-primary-50 rounded-xl">
+                            <FaChartBar className="text-primary-600 text-lg" />
+                        </div>
+                        <div>
+                            <h3 className="text-xl font-semibold text-gray-900">
+                                Task Distribution
+                            </h3>
+                            <p className="text-sm text-gray-500 mt-1">
+                                Tasks categorized by type and status
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div className="h-80 flex items-center justify-center">
+                    <div className="text-gray-500">Loading chart...</div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className={`bg-white rounded-2xl shadow-soft border border-gray-100 p-6 ${className}`}>
-            {/* Enhanced header with actions and better typography */}
+            {/* Header */}
             <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-3">
                     <div className="p-2 bg-primary-50 rounded-xl">
@@ -59,7 +102,6 @@ const TaskDistributionChart = ({ data, className = '' }) => {
                     </div>
                 </div>
 
-                {/* Chart controls */}
                 <div className="flex items-center gap-2">
                     <button className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors duration-200">
                         <FaFilter className="text-sm" />
@@ -68,10 +110,12 @@ const TaskDistributionChart = ({ data, className = '' }) => {
                 </div>
             </div>
 
-            {/* Enhanced chart container */}
-            <div className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
+            {/* Chart container with fixed dimensions */}
+            <div className="w-full overflow-x-auto">
+                <div className="min-w-[500px] flex justify-center">
                     <BarChart
+                        width={chartDimensions.width}
+                        height={chartDimensions.height}
                         data={data}
                         margin={{ top: 10, right: 30, left: 20, bottom: 60 }}
                     >
@@ -113,7 +157,7 @@ const TaskDistributionChart = ({ data, className = '' }) => {
                             name="Task Count"
                             barSize={32}
                         >
-                            {data.map((entry, index) => (
+                            {data && data.map((entry, index) => (
                                 <Cell
                                     key={`cell-${index}`}
                                     fill={colorPalette[index % colorPalette.length]}
@@ -122,7 +166,7 @@ const TaskDistributionChart = ({ data, className = '' }) => {
                             ))}
                         </Bar>
                     </BarChart>
-                </ResponsiveContainer>
+                </div>
             </div>
 
             {/* Chart summary footer */}
