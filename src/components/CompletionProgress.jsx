@@ -54,7 +54,6 @@ const CompletionProgress = ({ stats, className = '' }) => {
 
     const totalTasks = stats.total_tasks || 1;
     const completionRate = Math.round((stats.completed_tasks / totalTasks) * 100);
-    const inProgressRate = Math.round((stats.in_progress_tasks / totalTasks) * 100);
 
     const CustomTooltip = ({ active, payload }) => {
         if (active && payload && payload.length) {
