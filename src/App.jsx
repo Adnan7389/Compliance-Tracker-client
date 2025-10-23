@@ -14,6 +14,7 @@ import StaffManagement from './pages/dashboard/StaffManagement';
 import TaskManagement from './pages/dashboard/TaskManagement';
 import Profile from './pages/Profile';
 import NotFound from './pages/NotFound';
+import LandingPage from './pages/LandingPage';
 
 function App() {
   return (
@@ -23,11 +24,12 @@ function App() {
           <div className="min-h-screen bg-gray-50">
             <Routes>
               {/* Public Routes */}
+              <Route path="/" element={<LandingPage />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
 
               {/* Protected Routes with Layout */}
-              <Route path="/" element={
+              <Route path="/app" element={
                 <ProtectedRoute>
                   <Layout>
                     <Navigate to="/dashboard" replace />
