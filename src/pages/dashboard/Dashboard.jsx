@@ -66,7 +66,7 @@ const Dashboard = () => {
   const { stats, recent_activity, task_distribution, upcoming_deadlines } = dashboardData;
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8 px-4 sm:px-6 lg:px-8 py-8">
+    <div className="space-y-8">
       {/* Header Section */}
       <DashboardHeader isOwner={isOwner} />
 
