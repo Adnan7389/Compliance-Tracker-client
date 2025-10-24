@@ -20,6 +20,10 @@ const Profile = () => {
                     <p className="font-medium text-gray-700">Role</p>
                     <p className="text-gray-900 capitalize">{user?.role}</p>
                 </div>
+                <div>
+                    <p className="font-medium text-gray-700">Business Name</p>
+                    <p className="text-gray-900">{user?.businessName}</p>
+                </div>
             </div>
         </div>
     );
