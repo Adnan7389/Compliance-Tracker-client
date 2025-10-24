@@ -14,6 +14,7 @@ export const AuthProvider = ({ children }) => {
       name: userData.name,
       role: userData.role,
       businessId: userData.businessId,
+      businessName: userData.businessName,
       email: userData.email
       // ✅ Only non-sensitive data
     };
