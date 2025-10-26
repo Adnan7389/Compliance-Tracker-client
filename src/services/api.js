@@ -196,6 +196,7 @@ export const tasksAPI = {
   getById: (taskId) => apiService.get(`/tasks/${taskId}`),
   update: (taskId, updates) => apiService.put(`/tasks/${taskId}`, updates),
   delete: (taskId) => apiService.delete(`/tasks/${taskId}`),
+  getTaskHistory: (taskId) => apiService.get(`/tasks/${taskId}/history`),
 };
 
 export const dashboardAPI = {

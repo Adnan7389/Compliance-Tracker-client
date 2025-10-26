@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Modal from '../ui/Modal';
 import Button from '../ui/Button';
-import { documentsAPI } from '../../services/api';
+import { documentsAPI, tasksAPI } from '../../services/api';
 import { useApiError } from '../../hooks/useApiError';
 import { useToast } from '../../hooks/useToast';
 import {
@@ -23,6 +23,7 @@ const ViewTaskModal = ({ isOpen, onClose, task }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isDeletingDocument, setIsDeletingDocument] = useState(false);
+  const [taskHistory, setTaskHistory] = useState([]);
   const { handleError, globalError, clearErrors } = useApiError();
   const { showSuccess, showError } = useToast();
 
@@ -36,11 +37,25 @@ const ViewTaskModal = ({ isOpen, onClose, task }) => {
     }
   }, [task, handleError]);
 
+  const loadTaskHistory = useCallback(async () => {
+    if (!task || task.recurrence === 'none') {
+      setTaskHistory([]); // Clear history if not a recurring task
+      return;
+    }
+    try {
+      const response = await tasksAPI.getTaskHistory(task.id);
+      setTaskHistory(response.data.history);
+    } catch (error) {
+      handleError(error);
+    }
+  }, [task, handleError]);
+
   useEffect(() => {
     if (isOpen && task) {
       loadDocuments();
+      loadTaskHistory();
     }
-  }, [isOpen, loadDocuments]);
+  }, [isOpen, loadDocuments, loadTaskHistory]);
 
   const handleFileChange = (e) => {
     setSelectedFile(e.target.files[0]);
@@ -360,6 +375,41 @@ const ViewTaskModal = ({ isOpen, onClose, task }) => {
             </div>
           </div>
         </div>
+
+        {/* Task History Section */}
+        {task.recurrence !== 'none' && taskHistory.length > 0 && (
+          <div className="border-t border-gray-200 pt-6">
+            <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2 mb-4">
+              <FaClock className="text-primary-500" />
+              Task History ({taskHistory.length})
+            </h3>
+            <div className="space-y-3">
+              {taskHistory.map((historyItem) => (
+                <div
+                  key={historyItem.id}
+                  className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-white border border-gray-200 rounded-xl"
+                >
+                  <div className="flex-1 mb-2 sm:mb-0">
+                    <p className="text-sm font-medium text-gray-900">
+                      Completed by: <span className="font-semibold">{historyItem.completed_by_name}</span>
+                    </p>
+                    <p className="text-xs text-gray-600 mt-1">
+                      On: {formatDate(historyItem.completed_at)}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-gray-500">
+                      Previous Due: {formatDate(historyItem.previous_due_date)}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      Next Due: {formatDate(historyItem.next_due_date)}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Modal Footer */}
         <div className="flex justify-end pt-6 border-t border-gray-200">
