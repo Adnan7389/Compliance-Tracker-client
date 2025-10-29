@@ -182,42 +182,42 @@ export const apiService = {
 
 // Specific API endpoints
 export const authAPI = {
-  login: (credentials) => apiService.post('/auth/login', credentials),
-  register: (userData) => apiService.post('/auth/register', userData),
-  logout: () => apiService.post('/auth/logout'),
-  logoutAll: () => apiService.post('/auth/logout-all'),
-  getProfile: () => apiService.get('/auth/profile'),
+  login: (credentials) => apiService.post('/api/auth/login', credentials),
+  register: (userData) => apiService.post('/api/auth/register', userData),
+  logout: () => apiService.post('/api/auth/logout'),
+  logoutAll: () => apiService.post('/api/auth/logout-all'),
+  getProfile: () => apiService.get('/api/auth/profile'),
 };
 
 export const staffAPI = {
-  create: (staffData) => apiService.post('/staff', staffData),
-  getAll: () => apiService.get('/staff'),
-  getById: (staffId) => apiService.get(`/staff/${staffId}`),
+  create: (staffData) => apiService.post('/api/staff', staffData),
+  getAll: () => apiService.get('/api/staff'),
+  getById: (staffId) => apiService.get(`/api/staff/${staffId}`),
 };
 
 export const tasksAPI = {
-  create: (taskData) => apiService.post('/tasks', taskData),
-  getAll: (params = {}) => apiService.get('/tasks', { params }),
-  getById: (taskId) => apiService.get(`/tasks/${taskId}`),
-  update: (taskId, updates) => apiService.put(`/tasks/${taskId}`, updates),
-  delete: (taskId) => apiService.delete(`/tasks/${taskId}`),
-  getTaskHistory: (taskId) => apiService.get(`/tasks/${taskId}/history`),
+  create: (taskData) => apiService.post('/api/tasks', taskData),
+  getAll: (params = {}) => apiService.get('/api/tasks', { params }),
+  getById: (taskId) => apiService.get(`/api/tasks/${taskId}`),
+  update: (taskId, updates) => apiService.put(`/api/tasks/${taskId}`, updates),
+  delete: (taskId) => apiService.delete(`/api/tasks/${taskId}`),
+  getTaskHistory: (taskId) => apiService.get(`/api/tasks/${taskId}/history`),
 };
 
 export const dashboardAPI = {
-  getDashboard: () => apiService.get('/dashboard'),
-  getStats: () => apiService.get('/dashboard/stats'),
+  getDashboard: () => apiService.get('/api/dashboard'),
+  getStats: () => apiService.get('/api/dashboard/stats'),
 };
 
 export const documentsAPI = {
-  upload: (taskId, formData) => api.post(`/tasks/${taskId}/documents`, formData, {
+  upload: (taskId, formData) => api.post(`/api/tasks/${taskId}/documents`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
   }),
-  getTaskDocuments: (taskId) => apiService.get(`/tasks/${taskId}/documents`),
-  download: (documentId) => apiService.get(`/documents/${documentId}/download`, {
+  getTaskDocuments: (taskId) => apiService.get(`/api/tasks/${taskId}/documents`),
+  download: (documentId) => apiService.get(`/api/documents/${documentId}/download`, {
     responseType: 'blob' // Important for file downloads
   }),
-  delete: (documentId) => apiService.delete(`/documents/${documentId}`),
+  delete: (documentId) => apiService.delete(`/api/documents/${documentId}`),
 };
 
 // Utility functions
