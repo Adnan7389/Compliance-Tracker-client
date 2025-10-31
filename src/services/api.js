@@ -1,11 +1,6 @@
 import axios from 'axios';
 
-let apiUrl = import.meta.env.VITE_API_URL || '/api';
-if (apiUrl && !apiUrl.startsWith('http')) {
-  apiUrl = `https://${apiUrl}`;
-}
-
-const API_BASE_URL = apiUrl;
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 // Create axios instance with credentials for HTTP-only cookies
 const api = axios.create({
