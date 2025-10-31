@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/api/(.*)",
+      "destination": "https://compliance-tracker-back-end-production.up.railway.app/api/(.*)"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
