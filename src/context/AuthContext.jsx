@@ -39,16 +39,18 @@ export const AuthProvider = ({ children }) => {
   }, [getSafeUserData]);
 
   const checkAuth = useCallback(async () => {
-    try {
-      // Try to get profile - will work if HTTP-only cookie exists
-      await getProfile();
-    } catch {
-      // Not authenticated - clear any stale data
-      localStorage.removeItem('user');
-      setUser(null);
-    } finally {
-      setLoading(false);
+    const token = localStorage.getItem('user');
+    if (token) {
+      try {
+        // Try to get profile - will work if HTTP-only cookie exists
+        await getProfile();
+      } catch {
+        // Not authenticated - clear any stale data
+        localStorage.removeItem('user');
+        setUser(null);
+      }
     }
+    setLoading(false);
   }, [getProfile]);
 
   // Check if user is authenticated on app start
