@@ -264,11 +264,11 @@ const Login = () => {
                                         <div className="space-y-2 text-sm text-gray-600">
                                             <div className="flex items-center justify-between p-2 bg-white rounded-lg">
                                                 <span className="font-medium">Owner Account:</span>
-                                                <span>owner@example.com / password</span>
+                                                <span>owner@example.com / Owner@12</span>
                                             </div>
                                             <div className="flex items-center justify-between p-2 bg-white rounded-lg">
                                                 <span className="font-medium">Staff Account:</span>
-                                                <span>staff@example.com / password</span>
+                                                <span>staff@example.com / Staff@12</span>
                                             </div>
                                         </div>
                                     </div>
